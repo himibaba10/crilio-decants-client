@@ -141,5 +141,33 @@
   .shadow-soft-lg {
     box-shadow: var(--shadow-soft-lg);
   }
+
+  .product-copy h1,
+  .product-copy h2,
+  .product-copy h3,
+  .product-copy h4 {
+    @apply mt-4 mb-2 font-semibold text-navy first:mt-0;
+  }
+
+  .product-copy p {
+    @apply mb-3 last:mb-0;
+  }
+
+  .product-copy ul {
+    @apply mb-3 list-disc space-y-1 pl-5;
+  }
+
+  .product-copy strong {
+    @apply font-semibold text-navy;
+  }
+
+  .product-copy table {
+    @apply my-4 w-full overflow-hidden rounded-xl border border-border text-left text-sm;
+  }
+
+  .product-copy td,
+  .product-copy th {
+    @apply border-border border-b px-3 py-2;
+  }
 }
 

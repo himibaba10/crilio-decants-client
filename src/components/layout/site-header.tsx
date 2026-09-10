@@ -16,7 +16,7 @@ export function SiteHeader({ cartCount = 0, className }: SiteHeaderProps) {
         className,
       )}
     >
-      <div className='mx-auto grid h-20 max-w-7xl grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 sm:h-[5.5rem] sm:px-6 lg:px-8'>
+      <div className='mx-auto grid h-20 max-w-7xl grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 sm:h-22 sm:px-6 lg:px-8'>
         <HeaderNav />
         <BrandLogo size='header' />
         <HeaderActions cartCount={cartCount} />

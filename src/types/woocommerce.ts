@@ -1,7 +1,5 @@
 /** Shared WooCommerce / WooGraphQL types — expand as queries land. */
 
-export type DecantSize = "3ml" | "5ml" | "10ml"
-
 export type ProductVariation = {
   databaseId: number
   name: string
@@ -9,6 +7,7 @@ export type ProductVariation = {
   stockStatus: string | null
   attributes?: Array<{ name: string; value: string }>
 }
+
 
 export type CatalogProduct = {
   databaseId: number
