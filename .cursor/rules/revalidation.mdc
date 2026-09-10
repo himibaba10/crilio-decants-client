@@ -1,0 +1,12 @@
+---
+description: Cache revalidation webhook contract between WooCommerce and Next.js
+globs: src/app/api/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Inventory sync & revalidation (blueprint §7)
+
+- Implement `POST /api/revalidate` secured with `REVALIDATE_SECRET` (header or query — pick one and document in the route).
+- On success, call `revalidateTag` / `revalidatePath` for the affected product and/or global catalog.
+- WooCommerce webhooks (Product updated, Order created) POST to this route; treat payloads as untrusted except for the shared secret.
+- Never expose `REVALIDATE_SECRET` to the client.

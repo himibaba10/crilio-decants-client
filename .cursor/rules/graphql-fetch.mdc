@@ -1,0 +1,13 @@
+---
+description: WPGraphQL data fetching with native Next.js fetch and cache tags
+globs: src/lib/graphql/**/*.{ts,tsx},src/app/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# GraphQL fetching
+
+- Use `graphqlFetch` from `@/lib/graphql/client` (or extend it). Never add Apollo Client.
+- Colocate GraphQL documents in `src/lib/graphql/queries.ts` (or split by domain later).
+- Prefer App Router cache: pass `next: { revalidate, tags }` on `fetch` for catalog/PDP.
+- Tag products as `product:{slug}` and the catalog as `catalog` so `/api/revalidate` can bust precisely.
+- Do not call GraphQL from the browser for public catalog data unless there is a clear UX reason; default to RSC.

@@ -1,0 +1,54 @@
+---
+description: Crilio Decants headless WooCommerce architecture and stack conventions
+alwaysApply: true
+---
+
+# Crilio Decants — project rules
+
+Canonical spec: `docs/technical-blueprint.md`.
+
+Headless perfume decant store: **Next.js (App Router)** storefront on Vercel + **WordPress/WooCommerce** (Spaceship) via **WPGraphQL / WooGraphQL**. Checkout, Cart, and My Account stay on WooCommerce.
+
+## Stack (do not replace without asking)
+
+- Package manager: **bun**
+- UI: **Tailwind CSS v4** + **shadcn/ui** (`radix-nova`, light-only for now)
+- Data: native `fetch` GraphQL client in `src/lib/graphql` — **no Apollo/urql**
+- Cart: React Context + `localStorage` hydration (when implemented)
+- Payments: WooCommerce **Cash on Delivery** only on the checkout subdomain
+
+## WordPress plugins (Spaceship)
+
+Allow: WooCommerce, WPGraphQL, WPGraphQL WooCommerce (WooGraphQL).
+
+**Do not install:** Headless Mode (use §6 `template_redirect` PHP), WPGraphQL CORS (use §6a whitelist PHP).
+
+## Env
+
+- `NEXT_PUBLIC_WORDPRESS_API_URL` — WPGraphQL endpoint
+- `NEXT_PUBLIC_CHECKOUT_URL` — WooCommerce origin for cart handoff
+- `REVALIDATE_SECRET` — webhook auth for `/api/revalidate` (server-only)
+
+## Platform split
+
+| Surface | Where |
+| --- | --- |
+| Homepage, catalog, PDP, cart drawer | Next.js |
+| Cart, Checkout (COD), My Account | WooCommerce |
+
+## Folder map
+
+- `src/lib/graphql` — fetch client + query documents
+- `src/lib/cart` — cart types + checkout handoff URL builder
+- `src/context` — CartProvider (future)
+- `src/components/{ui,layout,catalog,cart,product}`
+- `src/app/api` — revalidate route handler (future)
+- `src/types` — WooCommerce/GraphQL types
+- `docs/` — technical blueprint (source of truth)
+
+## Coding norms
+
+- Prefer Server Components; mark `"use client"` only for interactive UI (variants, cart drawer, filters).
+- Match existing shadcn / Tailwind patterns; do not invent a parallel design system.
+- Keep diffs focused — no drive-by refactors or unsolicited docs.
+- Commits use **Conventional Commits** (`feat:`, `fix:`, `chore:`, …). Husky runs lint-staged + `tsc` on pre-commit and commitlint on commit-msg.

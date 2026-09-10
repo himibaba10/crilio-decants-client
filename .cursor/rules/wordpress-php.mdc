@@ -1,0 +1,42 @@
+---
+description: WordPress functions.php — cart handoff, traffic routing, and GraphQL CORS (blueprint §5–§6a)
+alwaysApply: false
+---
+
+# WordPress PHP (theme `functions.php`)
+
+This repo is the Next.js client. PHP below is the contract WordPress must implement.
+
+**Do not install:** Headless Mode plugin, WPGraphQL CORS plugin.
+
+## §5 Cart handoff (`wp_loaded`)
+
+Listen for `$_GET['add-to-cart-custom']` (`parent_id:variation_id:quantity` comma-separated).
+
+1. `WC()->cart->empty_cart()`
+2. Parse items; for each call `WC()->cart->add_to_cart( $product_id, $quantity, $variation_id )`
+3. `wp_safe_redirect( wc_get_checkout_url() ); exit;`
+
+Next.js builds this URL via `buildCheckoutHandoffUrl` — keep the query shape identical. No multi-cart plugins.
+
+## §6 Headless traffic routing (`template_redirect`)
+
+Allow native load (no redirect) when any of:
+
+- `is_admin()`
+- `is_cart()`
+- `is_checkout()`
+- `is_account_page()`
+- `wp_doing_ajax()`
+- GraphQL API endpoint request
+
+All other frontend requests: `wp_redirect( 'https://<vercel-storefront-domain>', 301 ); exit;`
+
+## §6a GraphQL CORS (no plugin)
+
+Whitelist only:
+
+- Production Vercel origin (e.g. `https://yourperfume.com`)
+- `http://localhost:3000`
+
+Prefer `graphql_response_headers_to_send`. Handle OPTIONS preflight. Never use `*`. Server-side Next.js `fetch` does not need CORS; this is for browser-origin GraphQL.

@@ -1,0 +1,24 @@
+---
+description: Cart state shape and WooCommerce variation cart-handoff protocol
+globs: src/lib/cart/**/*.{ts,tsx},src/context/**/*.{ts,tsx},src/components/cart/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Cart & checkout handoff
+
+## Client cart (Next.js)
+
+Each line item must include: `productId`, `variationId`, `quantity`, `price`.
+Persist via Context + `useEffect` ↔ `localStorage` so refreshes keep the cart.
+
+## Handoff URL (blueprint §5)
+
+Redirect to WooCommerce with:
+
+`{CHECKOUT_URL}/?add-to-cart-custom=parent_id:variation_id:quantity,...`
+
+Use `buildCheckoutHandoffUrl` from `@/lib/cart/handoff`. Do not invent alternate multi-cart plugins or query shapes.
+
+## WordPress side (reference only)
+
+See `.cursor/rules/wordpress-php.mdc` (blueprint §5). Keep the Next.js query payload compatible with that PHP contract.
