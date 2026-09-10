@@ -1,14 +1,13 @@
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 
+import { BrandLogo } from '@/components/layout/brand-logo';
 import { siteConfig } from '@/lib/site';
 
 export function FooterBrand() {
   return (
     <div className='space-y-4'>
-      <p className='font-heading text-3xl tracking-[0.22em] text-gold uppercase'>
-        {siteConfig.name}
-      </p>
+      <BrandLogo size='footer' className='justify-start' />
       <p className='max-w-xs text-sm leading-relaxed text-white/65'>
         {siteConfig.description}
       </p>

@@ -15,10 +15,13 @@ const poppins = Poppins({
 
 export const metadata: Metadata = {
   title: {
-    default: `${siteConfig.name} Decants`,
+    default: siteConfig.name,
     template: `%s · ${siteConfig.name}`,
   },
   description: siteConfig.description,
+  icons: {
+    icon: siteConfig.images.logo,
+  },
 }
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -27,7 +27,7 @@ export function WhyChoose() {
         <div className='relative min-h-80 overflow-hidden rounded-2xl shadow-soft-md lg:min-h-104'>
           <Image
             src={siteConfig.images.whyChoose}
-            alt='Crilio perfume arrangement'
+            alt={`${siteConfig.name} perfume arrangement`}
             fill
             sizes='(max-width: 1024px) 100vw, 50vw'
             className='object-cover'
