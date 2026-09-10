@@ -8,6 +8,7 @@ import {
 } from 'react';
 import { useRouter } from 'next/navigation';
 
+import { useNavProgress } from '@/components/layout/navigation-progress';
 import { buildShopHref, type ShopParams } from '@/lib/shop/params';
 
 type ShopNavigationContextValue = {
@@ -31,9 +32,11 @@ export function ShopNavigationProvider({
   children,
 }: ShopNavigationProviderProps) {
   const router = useRouter();
+  const { start } = useNavProgress();
   const [isPending, startTransition] = useTransition();
 
   const navigate = (href: string) => {
+    start();
     startTransition(() => {
       router.push(href, { scroll: false });
     });

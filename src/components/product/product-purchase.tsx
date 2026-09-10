@@ -6,6 +6,7 @@ import { Minus, Plus } from 'lucide-react';
 
 import { buildCheckoutHandoffUrl } from '@/lib/cart/handoff';
 import { useCart } from '@/context/cart-provider';
+import { useToast } from '@/context/toast-provider';
 import { formatPriceRange } from '@/lib/catalog';
 import {
   formatDecantSizeLabel,
@@ -23,6 +24,7 @@ type ProductPurchaseProps = {
 
 export function ProductPurchase({ product }: ProductPurchaseProps) {
   const { addItem } = useCart();
+  const { toast } = useToast();
   const variations = useMemo(
     () => sortVariationsBySize(product.variations?.nodes ?? []),
     [product.variations?.nodes],
@@ -32,7 +34,6 @@ export function ProductPurchase({ product }: ProductPurchaseProps) {
     variations[0]?.databaseId ?? null,
   );
   const [quantity, setQuantity] = useState(1);
-  const [added, setAdded] = useState(false);
 
   const selected = variations.find((v) => v.databaseId === selectedId) ?? null;
   const displayPrice = selected?.price ?? product.price;
@@ -78,9 +79,16 @@ export function ProductPurchase({ product }: ProductPurchaseProps) {
   const onAddToCart = () => {
     if (isVariable && !selected) return;
     if (outOfStock) return;
-    addItem(lineItem());
-    setAdded(true);
-    window.setTimeout(() => setAdded(false), 1800);
+    const item = lineItem();
+    addItem(item);
+    toast({
+      title: 'Added to cart',
+      description: item.sizeLabel
+        ? `${item.name} · ${item.sizeLabel} × ${item.quantity}`
+        : `${item.name} × ${item.quantity}`,
+      href: '/cart',
+      hrefLabel: 'View cart',
+    });
   };
 
   return (
@@ -171,9 +179,9 @@ export function ProductPurchase({ product }: ProductPurchaseProps) {
           type='button'
           onClick={onAddToCart}
           disabled={outOfStock || (isVariable && !selected)}
-          className='inline-flex h-11 flex-1 items-center justify-center rounded-full border border-border bg-[#f3efe6] px-6 text-xs font-semibold tracking-[0.16em] text-navy uppercase transition-colors hover:border-gold disabled:opacity-40 sm:min-w-36'
+          className='inline-flex h-11 flex-1 items-center justify-center rounded-full border border-border bg-[#f3efe6] px-6 text-xs font-semibold tracking-[0.16em] text-navy uppercase transition-all hover:border-gold active:scale-[0.98] disabled:opacity-40 sm:min-w-36'
         >
-          {added ? 'Added' : 'Add to cart'}
+          Add to cart
         </button>
         <a
           href={whatsappHref}
@@ -184,15 +192,6 @@ export function ProductPurchase({ product }: ProductPurchaseProps) {
           WhatsApp
         </a>
       </div>
-
-      {added ? (
-        <p className='text-sm text-navy'>
-          Added to cart.{' '}
-          <Link href='/cart' className='font-medium underline'>
-            View cart
-          </Link>
-        </p>
-      ) : null}
 
       {outOfStock ? (
         <p className='text-sm font-medium text-red-700'>Out of stock</p>
