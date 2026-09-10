@@ -3,11 +3,21 @@ description: WordPress functions.php — cart handoff, traffic routing, and Grap
 alwaysApply: false
 ---
 
-# WordPress PHP (theme `functions.php`)
+# WordPress PHP (theme `functions.php` or preferably `mu-plugins/`)
 
 This repo is the Next.js client. PHP below is the contract WordPress must implement.
+Canonical copies live in `docs/wordpress/`:
+
+- `crilio-cart-handoff.php` — §5 cart handoff
+- `crilio-headless-bridge.php` — §6 routing, §6a CORS, Crilio checkout/account skin
 
 **Do not install:** Headless Mode plugin, WPGraphQL CORS plugin.
+
+Set storefront URL in `wp-config.php` for production:
+
+```php
+define( 'CRILIO_STOREFRONT_URL', 'https://yourperfume.com' );
+```
 
 ## §5 Cart handoff (`wp_loaded`)
 
