@@ -1,9 +1,4 @@
-/**
- * Native fetch GraphQL client for WPGraphQL.
- * Do not introduce Apollo, urql, or other heavy GraphQL clients.
- *
- * Implementation lands in a later pass — this file is the intended import path.
- */
+/** Native fetch GraphQL client for WPGraphQL — no Apollo/urql. */
 
 import { env } from "@/lib/env"
 

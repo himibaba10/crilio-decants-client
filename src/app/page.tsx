@@ -1,52 +1,44 @@
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
+import { Bestsellers } from "@/components/home/bestsellers"
+import { CategoryShowcase } from "@/components/home/category-showcase"
+import { Collections } from "@/components/home/collections"
+import { Hero } from "@/components/home/hero"
+import { Perks } from "@/components/home/perks"
+import { StoreLocation } from "@/components/home/store-location"
+import { Testimonials } from "@/components/home/testimonials"
+import { WhyChoose } from "@/components/home/why-choose"
+import { graphqlFetch } from "@/lib/graphql/client"
+import { HOME_CATALOG_QUERY } from "@/lib/graphql/queries"
+import type { HomeCatalogData } from "@/types/home"
 
-export default function Home() {
+export const revalidate = 60
+
+async function getHomeCatalog(): Promise<HomeCatalogData> {
+  try {
+    return await graphqlFetch<HomeCatalogData>(HOME_CATALOG_QUERY, undefined, {
+      next: { revalidate: 60, tags: ["catalog"] },
+    })
+  } catch {
+    return {
+      products: { nodes: [] },
+      productCategories: { nodes: [] },
+    }
+  }
+}
+
+export default async function HomePage() {
+  const data = await getHomeCatalog()
+  const products = data.products.nodes
+
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center gap-8 px-6 py-16">
-      <div className="space-y-3">
-        <Badge variant="secondary">Scaffold</Badge>
-        <h1 className="text-3xl font-semibold tracking-tight">Crilio Decants</h1>
-        <p className="text-muted-foreground text-base leading-relaxed">
-          Next.js App Router storefront scaffold for the headless WooCommerce
-          perfume decant store. Catalog, cart, and checkout handoff land in
-          later passes.
-        </p>
-      </div>
-
-      <Separator />
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Ready in this repo</CardTitle>
-          <CardDescription>
-            Stack and primitives only — no live GraphQL wiring yet.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3 text-sm text-muted-foreground">
-          <ul className="list-inside list-disc space-y-1">
-            <li>Next.js 16 · TypeScript · bun · Tailwind CSS v4</li>
-            <li>shadcn/ui (radix-nova) · light theme</li>
-            <li>
-              Primitives: Button, Sheet, Input, Select, Card, Badge, Separator
-            </li>
-            <li>
-              Env placeholders in <code>.env.example</code>
-            </li>
-          </ul>
-          <Button type="button" disabled>
-            Shop coming soon
-          </Button>
-        </CardContent>
-      </Card>
+    <main className="flex-1">
+      <Hero />
+      <CategoryShowcase />
+      <Bestsellers products={products} />
+      <Collections products={products} />
+      <WhyChoose />
+      <Testimonials />
+      <StoreLocation />
+      <Perks />
     </main>
   )
 }

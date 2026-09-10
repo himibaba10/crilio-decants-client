@@ -1,33 +1,33 @@
 import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
+import { Poppins } from "next/font/google"
+
+import { SiteFooter } from "@/components/layout/site-footer"
+import { SiteHeader } from "@/components/layout/site-header"
+import { siteConfig } from "@/lib/site"
+
 import "./globals.css"
 
-const geistSans = Geist({
+const poppins = Poppins({
   variable: "--font-sans",
   subsets: ["latin"],
-})
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
 })
 
 export const metadata: Metadata = {
   title: {
-    default: "Crilio Decants",
-    template: "%s · Crilio Decants",
+    default: `${siteConfig.name} Decants`,
+    template: `%s · ${siteConfig.name}`,
   },
-  description: "Headless perfume decant storefront powered by Next.js and WooCommerce.",
+  description: siteConfig.description,
 }
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="flex min-h-full flex-col bg-background text-foreground">
+    <html lang="en" className={`${poppins.variable} h-full antialiased`}>
+      <body className="flex min-h-full flex-col font-sans text-foreground">
+        <SiteHeader />
         {children}
+        <SiteFooter />
       </body>
     </html>
   )

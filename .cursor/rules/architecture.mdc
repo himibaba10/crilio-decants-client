@@ -52,3 +52,4 @@ Allow: WooCommerce, WPGraphQL, WPGraphQL WooCommerce (WooGraphQL).
 - Match existing shadcn / Tailwind patterns; do not invent a parallel design system.
 - Keep diffs focused — no drive-by refactors or unsolicited docs.
 - Commits use **Conventional Commits** (`feat:`, `fix:`, `chore:`, …). Husky runs lint-staged + `tsc` on pre-commit and commitlint on commit-msg.
+- **Color contrast:** `bg-gold` buttons use `text-navy` (never white). Do not use `text-gold` on light surfaces — reserve gold for fills, borders, and icons (or brand marks on navy). Body copy uses `text-ink` / `text-navy`; `text-muted-foreground` is for captions only.

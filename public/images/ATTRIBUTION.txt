@@ -1,0 +1,2 @@
+Images sourced from Unsplash (https://unsplash.com) for development placeholders.
+Replace with Crilio brand photography before production launch.
