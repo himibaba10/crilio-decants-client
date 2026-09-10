@@ -1,32 +1,25 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
 
-import { buildShopHref, type ShopParams } from '@/lib/shop/params';
+import { useShopNavigation } from '@/components/shop/shop-navigation';
 
 type PriceFilterProps = {
-  params: ShopParams;
   ceiling?: number;
 };
 
-export function PriceFilter({ params, ceiling = 5000 }: PriceFilterProps) {
-  const router = useRouter();
-  const [pending, startTransition] = useTransition();
+export function PriceFilter({ ceiling = 5000 }: PriceFilterProps) {
+  const { params, push, isPending } = useShopNavigation();
   const [min, setMin] = useState(String(params.minPrice ?? 0));
   const [max, setMax] = useState(String(params.maxPrice ?? ceiling));
 
   const apply = () => {
     const minPrice = Number(min);
     const maxPrice = Number(max);
-    startTransition(() => {
-      router.push(
-        buildShopHref(params, {
-          minPrice: Number.isFinite(minPrice) ? minPrice : undefined,
-          maxPrice: Number.isFinite(maxPrice) ? maxPrice : undefined,
-          page: 1,
-        }),
-      );
+    push({
+      minPrice: Number.isFinite(minPrice) ? minPrice : undefined,
+      maxPrice: Number.isFinite(maxPrice) ? maxPrice : undefined,
+      page: 1,
     });
   };
 
@@ -58,10 +51,10 @@ export function PriceFilter({ params, ceiling = 5000 }: PriceFilterProps) {
       <button
         type='button'
         onClick={apply}
-        disabled={pending}
+        disabled={isPending}
         className='inline-flex h-9 w-full items-center justify-center rounded-full bg-navy text-[11px] tracking-[0.16em] text-white uppercase transition-colors hover:bg-navy-deep disabled:opacity-60'
       >
-        {pending ? 'Applying…' : 'Apply'}
+        {isPending ? 'Applying…' : 'Apply'}
       </button>
     </div>
   );

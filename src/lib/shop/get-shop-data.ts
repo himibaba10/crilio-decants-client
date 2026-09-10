@@ -1,3 +1,5 @@
+import { unstable_cache } from 'next/cache';
+
 import { productsInCategory } from '@/lib/catalog';
 import { graphqlFetch } from '@/lib/graphql/client';
 import { SHOP_CATALOG_QUERY } from '@/lib/graphql/queries';
@@ -18,6 +20,15 @@ const EMPTY: ShopCatalogResponse = {
   products: { nodes: [] },
   productCategories: { nodes: [] },
 };
+
+/** Same WP payload for every filter — cache once, filter in-app. */
+const getShopCatalog = unstable_cache(
+  async (): Promise<ShopCatalogResponse> => {
+    return graphqlFetch<ShopCatalogResponse>(SHOP_CATALOG_QUERY);
+  },
+  ['shop-catalog'],
+  { revalidate: 60, tags: ['catalog', 'shop'] },
+);
 
 export type ShopPageData = {
   products: HomeProduct[];
@@ -62,14 +73,7 @@ export async function getShopPageData(
   let error: string | undefined;
 
   try {
-    data = await graphqlFetch<ShopCatalogResponse>(
-      SHOP_CATALOG_QUERY,
-      undefined,
-      {
-        cache: 'no-store',
-        next: { tags: ['catalog', 'shop'] },
-      },
-    );
+    data = await getShopCatalog();
   } catch (err) {
     error =
       err instanceof Error

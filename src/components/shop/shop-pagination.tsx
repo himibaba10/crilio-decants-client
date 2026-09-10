@@ -1,23 +1,24 @@
+'use client';
+
 import type { ReactNode } from 'react';
-import Link from 'next/link';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-import { buildShopHref, type ShopParams } from '@/lib/shop/params';
+import { useShopNavigation } from '@/components/shop/shop-navigation';
 import { cn } from '@/lib/utils';
 
 type ShopPaginationProps = {
-  params: ShopParams;
   page: number;
   total: number;
   totalPages: number;
 };
 
 export function ShopPagination({
-  params,
   page,
   total,
   totalPages,
 }: ShopPaginationProps) {
+  const { params, push, isPending } = useShopNavigation();
+
   if (total === 0) return null;
 
   const start = (page - 1) * params.perPage + 1;
@@ -28,56 +29,61 @@ export function ShopPagination({
   );
 
   return (
-    <div className='flex flex-col gap-4 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between'>
+    <div
+      className='flex flex-col gap-4 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between'
+      aria-busy={isPending}
+    >
       <p className='text-sm text-ink/70'>
         Showing {start}–{end} of {total} results
       </p>
 
       <div className='flex items-center gap-1'>
-        <PageLink
-          href={buildShopHref(params, { page: Math.max(1, page - 1) })}
-          disabled={page <= 1}
+        <PageButton
+          disabled={isPending || page <= 1}
           label='Previous page'
+          onClick={() => push({ page: Math.max(1, page - 1) })}
         >
           <ChevronLeft className='size-4' />
-        </PageLink>
+        </PageButton>
 
         {pages.map((n) => (
-          <Link
+          <button
             key={n}
-            href={buildShopHref(params, { page: n })}
+            type='button'
+            disabled={isPending}
+            onClick={() => push({ page: n })}
             className={cn(
-              'inline-flex size-9 items-center justify-center rounded-lg text-sm font-medium transition-colors',
+              'inline-flex size-9 items-center justify-center rounded-lg text-sm font-medium transition-colors disabled:opacity-60',
               n === page
                 ? 'bg-gold text-navy'
                 : 'border border-border text-navy hover:border-gold',
             )}
           >
             {n}
-          </Link>
+          </button>
         ))}
 
-        <PageLink
-          href={buildShopHref(params, { page: Math.min(totalPages, page + 1) })}
-          disabled={page >= totalPages}
+        <PageButton
+          disabled={isPending || page >= totalPages}
           label='Next page'
+          onClick={() => push({ page: Math.min(totalPages, page + 1) })}
         >
           <ChevronRight className='size-4' />
-        </PageLink>
+        </PageButton>
       </div>
     </div>
   );
 }
 
-function PageLink({
-  href,
+function PageButton({
   disabled,
   label,
+  onClick,
   children,
 }: {
-  href: string;
   disabled?: boolean;
   label: string;
+  onClick: () => void;
   children: ReactNode;
 }) {
   if (disabled) {
@@ -92,12 +98,13 @@ function PageLink({
   }
 
   return (
-    <Link
-      href={href}
+    <button
+      type='button'
       aria-label={label}
+      onClick={onClick}
       className='inline-flex size-9 items-center justify-center rounded-lg border border-border text-navy transition-colors hover:border-gold'
     >
       {children}
-    </Link>
+    </button>
   );
 }

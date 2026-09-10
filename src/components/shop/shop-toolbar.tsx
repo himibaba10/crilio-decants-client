@@ -1,46 +1,34 @@
 'use client';
 
 import { LayoutGrid, List } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useTransition } from 'react';
 
+import { useShopNavigation } from '@/components/shop/shop-navigation';
 import {
   SHOP_PER_PAGE_OPTIONS,
   SHOP_SORT_OPTIONS,
-  buildShopHref,
-  type ShopParams,
   type ShopSort,
 } from '@/lib/shop/params';
 import { cn } from '@/lib/utils';
 
-type ShopToolbarProps = {
-  params: ShopParams;
-};
-
-export function ShopToolbar({ params }: ShopToolbarProps) {
-  const router = useRouter();
-  const [pending, startTransition] = useTransition();
-
-  const push = (patch: Partial<ShopParams>) => {
-    startTransition(() => {
-      router.push(buildShopHref(params, { ...patch, page: 1 }));
-    });
-  };
+export function ShopToolbar() {
+  const { params, push, isPending } = useShopNavigation();
 
   return (
     <div
       className={cn(
         'flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between',
-        pending && 'opacity-70',
+        isPending && 'opacity-70',
       )}
+      aria-busy={isPending}
     >
       <div className='flex items-center gap-2'>
         <button
           type='button'
           aria-label='Grid view'
+          disabled={isPending}
           onClick={() => push({ view: 'grid' })}
           className={cn(
-            'inline-flex size-9 items-center justify-center rounded-lg border transition-colors',
+            'inline-flex size-9 items-center justify-center rounded-lg border transition-colors disabled:opacity-60',
             params.view === 'grid'
               ? 'border-gold bg-gold/15 text-navy'
               : 'border-border text-ink/50 hover:border-gold',
@@ -51,9 +39,10 @@ export function ShopToolbar({ params }: ShopToolbarProps) {
         <button
           type='button'
           aria-label='List view'
+          disabled={isPending}
           onClick={() => push({ view: 'list' })}
           className={cn(
-            'inline-flex size-9 items-center justify-center rounded-lg border transition-colors',
+            'inline-flex size-9 items-center justify-center rounded-lg border transition-colors disabled:opacity-60',
             params.view === 'list'
               ? 'border-gold bg-gold/15 text-navy'
               : 'border-border text-ink/50 hover:border-gold',
@@ -68,8 +57,9 @@ export function ShopToolbar({ params }: ShopToolbarProps) {
           <span className='whitespace-nowrap'>Sort by</span>
           <select
             value={params.sort}
+            disabled={isPending}
             onChange={(e) => push({ sort: e.target.value as ShopSort })}
-            className='h-9 rounded-lg border border-border bg-white px-2 text-sm text-navy outline-none focus:border-gold'
+            className='h-9 rounded-lg border border-border bg-white px-2 text-sm text-navy outline-none focus:border-gold disabled:opacity-60'
           >
             {SHOP_SORT_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
@@ -83,8 +73,9 @@ export function ShopToolbar({ params }: ShopToolbarProps) {
           <span className='whitespace-nowrap'>Per page</span>
           <select
             value={params.perPage}
+            disabled={isPending}
             onChange={(e) => push({ perPage: Number(e.target.value) })}
-            className='h-9 rounded-lg border border-border bg-white px-2 text-sm text-navy outline-none focus:border-gold'
+            className='h-9 rounded-lg border border-border bg-white px-2 text-sm text-navy outline-none focus:border-gold disabled:opacity-60'
           >
             {SHOP_PER_PAGE_OPTIONS.map((n) => (
               <option key={n} value={n}>

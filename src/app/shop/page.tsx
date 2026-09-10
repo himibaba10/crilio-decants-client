@@ -10,6 +10,9 @@ export const metadata: Metadata = {
   description: `Browse perfume decants from ${siteConfig.name}.`,
 };
 
+/** Match catalog ISR; webhook tags (`catalog` / `shop`) will bust this later. */
+export const revalidate = 60;
+
 export default async function ShopPage({
   searchParams,
 }: PageProps<'/shop'>) {
