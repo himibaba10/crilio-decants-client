@@ -1,7 +1,10 @@
 'use client';
 
+import { Loader2 } from 'lucide-react';
+import { usePathname, useSearchParams } from 'next/navigation';
 import {
   createContext,
+  Suspense,
   useCallback,
   useContext,
   useEffect,
@@ -9,9 +12,6 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { usePathname, useSearchParams } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
-import { Suspense } from 'react';
 
 import { cn } from '@/lib/utils';
 
@@ -141,7 +141,7 @@ export function NavigationProgressProvider({
       {barOn ? (
         <div
           aria-hidden
-          className='pointer-events-none fixed inset-x-0 top-0 z-[200] h-1 overflow-hidden'
+          className='pointer-events-none fixed inset-x-0 top-0 z-200 h-1 overflow-hidden'
         >
           <div
             className={cn(
@@ -158,7 +158,7 @@ export function NavigationProgressProvider({
         <div
           role='status'
           aria-live='polite'
-          className='fixed inset-0 z-[190] flex items-center justify-center bg-[#fafafa]/70 backdrop-blur-[1px]'
+          className='fixed inset-0 z-190 flex items-center justify-center bg-[#fafafa]/70 backdrop-blur-[1px]'
         >
           <div className='flex items-center gap-3 rounded-full border border-border/80 bg-white px-5 py-3 shadow-soft-lg'>
             <Loader2 className='size-5 animate-spin text-gold' aria-hidden />

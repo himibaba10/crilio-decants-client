@@ -16,10 +16,9 @@ export const siteConfig = {
     youtube: '#',
   },
   nav: [
-    { label: 'Home', href: '/' },
-    { label: 'Shop', href: '/shop' },
-    { label: 'Find us', href: '#store-location' },
-    { label: 'Contact', href: '/contact' },
+    { label: 'HOME', href: '/' },
+    { label: 'SHOP', href: '/shop' },
+    { label: 'FIND US', action: 'find-us' as const },
   ],
   images: {
     logo: '/images/brand/crilio-logo.png',

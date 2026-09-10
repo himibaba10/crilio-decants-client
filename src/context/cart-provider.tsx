@@ -8,8 +8,8 @@ import {
   useSyncExternalStore,
   type ReactNode,
 } from 'react';
+import { useRouter } from 'next/navigation';
 
-import { buildCheckoutHandoffUrl } from '@/lib/cart/handoff';
 import {
   CART_STORAGE_KEY,
   mergeCartItem,
@@ -22,6 +22,8 @@ import {
   cartSubtotal,
   type CartItem,
 } from '@/lib/cart/types';
+
+const CHECKOUT_HANDOFF_FLAG = 'crilio-checkout-handed-off';
 
 const CART_CHANGE_EVENT = 'crilio-cart-change';
 const EMPTY_SNAPSHOT = '{"items":[]}';
@@ -76,6 +78,7 @@ function persistItems(items: CartItem[]) {
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {
+  const router = useRouter();
   const snapshot = useSyncExternalStore(
     subscribe,
     getSnapshot,
@@ -130,8 +133,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const checkout = useCallback(() => {
     const current = parseCartState(getSnapshot()).items;
     if (!current.length) return;
-    window.location.href = buildCheckoutHandoffUrl(current);
-  }, []);
+    try {
+      // Allow a fresh handoff after returning from Woo via Back.
+      sessionStorage.removeItem(CHECKOUT_HANDOFF_FLAG);
+    } catch {
+      // ignore
+    }
+    // replace so /checkout is not stacked under Woo in history.
+    router.replace('/checkout');
+  }, [router]);
 
   const value = useMemo<CartContextValue>(
     () => ({

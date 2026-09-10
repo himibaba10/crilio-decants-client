@@ -73,7 +73,7 @@ export function ProductPurchase({ product }: ProductPurchaseProps) {
   const onBuyNow = () => {
     if (isVariable && !selected) return;
     if (outOfStock) return;
-    window.location.href = buildCheckoutHandoffUrl([lineItem()]);
+    window.location.replace(buildCheckoutHandoffUrl([lineItem()]));
   };
 
   const onAddToCart = () => {

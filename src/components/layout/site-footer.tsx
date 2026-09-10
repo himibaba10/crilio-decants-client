@@ -3,6 +3,7 @@ import {
   FooterSocialLinks,
 } from '@/components/layout/footer-brand';
 import { FooterColumn, FooterLink } from '@/components/layout/footer-column';
+import { FindUsTrigger } from '@/components/layout/find-us-trigger';
 import { accountUrl } from '@/lib/catalog';
 import { siteConfig } from '@/lib/site';
 
@@ -16,10 +17,13 @@ export function SiteFooter() {
         <FooterBrand />
 
         <FooterColumn title='Quick links'>
-          <FooterLink href='/about'>About us</FooterLink>
-          <FooterLink href='/contact'>Contact us</FooterLink>
-          <FooterLink href='#store-location'>Store location</FooterLink>
+          <li>
+            <FindUsTrigger className='transition-colors hover:text-white'>
+              Find us
+            </FindUsTrigger>
+          </li>
           <FooterLink href='/shop'>Shop</FooterLink>
+          <FooterLink href='/cart'>Cart</FooterLink>
         </FooterColumn>
 
         <FooterColumn title='Account'>

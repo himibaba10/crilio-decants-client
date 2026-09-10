@@ -71,8 +71,8 @@ export function CartView() {
           </span>
         </div>
         <p className='text-xs leading-relaxed text-ink/55'>
-          Shipping and payment are confirmed on the WooCommerce checkout page
-          (Cash on Delivery).
+          You will continue to WooCommerce for Cash on Delivery — shipping and
+          address details are collected there.
         </p>
         <button
           type='button'
