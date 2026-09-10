@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { ShoppingBag } from 'lucide-react';
 
 import { formatPriceRange } from '@/lib/catalog';
 import { cn } from '@/lib/utils';
@@ -10,6 +11,7 @@ type ProductCardProps = {
   className?: string;
   priority?: boolean;
   fallbackImage?: string;
+  layout?: 'grid' | 'list';
 };
 
 export function ProductCard({
@@ -17,10 +19,47 @@ export function ProductCard({
   className,
   priority,
   fallbackImage = '/images/home/perfume-1.jpg',
+  layout = 'grid',
 }: ProductCardProps) {
   const href = `/product/${product.slug}`;
   const outOfStock = product.stockStatus === 'OUT_OF_STOCK';
   const imageUrl = product.image?.sourceUrl || fallbackImage;
+
+  if (layout === 'list') {
+    return (
+      <article
+        className={cn(
+          'flex gap-4 overflow-hidden rounded-2xl border border-border/70 bg-white p-3 shadow-soft',
+          className,
+        )}
+      >
+        <Link
+          href={href}
+          className='relative size-28 shrink-0 overflow-hidden rounded-xl bg-[#f5f5f5]'
+        >
+          <Image
+            src={imageUrl}
+            alt={product.image?.altText || product.name}
+            fill
+            sizes='112px'
+            className='object-cover'
+          />
+        </Link>
+        <div className='flex min-w-0 flex-1 flex-col justify-center gap-2'>
+          <h3 className='truncate text-sm font-medium text-ink'>
+            <Link href={href}>{product.name}</Link>
+          </h3>
+          <p className='text-sm font-medium text-navy'>
+            {formatPriceRange(product.price)}
+          </p>
+          <div className='flex gap-2'>
+            <BuyButton href={href} disabled={outOfStock} />
+            <CartIconButton href={href} disabled={outOfStock} />
+          </div>
+        </div>
+      </article>
+    );
+  }
 
   return (
     <article
@@ -57,16 +96,55 @@ export function ProductCard({
         <p className='text-sm font-medium text-navy'>
           {formatPriceRange(product.price)}
         </p>
-        <Link
-          href={href}
-          className={cn(
-            'mt-auto inline-flex h-9 items-center justify-center rounded-full bg-gold text-[11px] font-semibold tracking-[0.16em] text-navy uppercase transition-colors hover:bg-gold-soft',
-            outOfStock && 'pointer-events-none opacity-40',
-          )}
-        >
-          Buy now
-        </Link>
+        <div className='mt-auto flex gap-2'>
+          <BuyButton href={href} disabled={outOfStock} className='flex-1' />
+          <CartIconButton href={href} disabled={outOfStock} />
+        </div>
       </div>
     </article>
+  );
+}
+
+function BuyButton({
+  href,
+  disabled,
+  className,
+}: {
+  href: string;
+  disabled?: boolean;
+  className?: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className={cn(
+        'inline-flex h-9 items-center justify-center rounded-full bg-gold px-3 text-[11px] font-semibold tracking-[0.16em] text-navy uppercase transition-colors hover:bg-gold-soft',
+        disabled && 'pointer-events-none opacity-40',
+        className,
+      )}
+    >
+      Buy now
+    </Link>
+  );
+}
+
+function CartIconButton({
+  href,
+  disabled,
+}: {
+  href: string;
+  disabled?: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      aria-label='View product'
+      className={cn(
+        'inline-flex size-9 shrink-0 items-center justify-center rounded-full border border-gold text-navy transition-colors hover:bg-gold/15',
+        disabled && 'pointer-events-none opacity-40',
+      )}
+    >
+      <ShoppingBag className='size-4' />
+    </Link>
   );
 }
