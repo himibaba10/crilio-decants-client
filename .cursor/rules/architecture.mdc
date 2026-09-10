@@ -33,8 +33,8 @@ Allow: WooCommerce, WPGraphQL, WPGraphQL WooCommerce (WooGraphQL).
 
 | Surface | Where |
 | --- | --- |
-| Homepage, catalog, PDP, cart drawer | Next.js |
-| Cart, Checkout (COD), My Account | WooCommerce |
+| Homepage, catalog, PDP, cart page | Next.js |
+| Checkout (COD), My Account | WooCommerce |
 
 ## Folder map
 

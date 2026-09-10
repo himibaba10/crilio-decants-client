@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react';
 import { Minus, Plus } from 'lucide-react';
 
 import { buildCheckoutHandoffUrl } from '@/lib/cart/handoff';
-import { appendCartItemLocal } from '@/lib/cart/storage';
+import { useCart } from '@/context/cart-provider';
 import { formatPriceRange } from '@/lib/catalog';
 import {
   formatDecantSizeLabel,
@@ -22,6 +22,7 @@ type ProductPurchaseProps = {
 };
 
 export function ProductPurchase({ product }: ProductPurchaseProps) {
+  const { addItem } = useCart();
   const variations = useMemo(
     () => sortVariationsBySize(product.variations?.nodes ?? []),
     [product.variations?.nodes],
@@ -35,16 +36,18 @@ export function ProductPurchase({ product }: ProductPurchaseProps) {
 
   const selected = variations.find((v) => v.databaseId === selectedId) ?? null;
   const displayPrice = selected?.price ?? product.price;
+  const sizeLabel = selected
+    ? formatDecantSizeLabel(variationSizeValue(selected))
+    : null;
   const outOfStock =
     (selected?.stockStatus ?? product.stockStatus) === 'OUT_OF_STOCK';
+  const imageUrl =
+    selected?.image?.sourceUrl || product.image?.sourceUrl || null;
 
   const whatsappHref = (() => {
     const digits = siteConfig.phone.replace(/\D/g, '');
-    const size = selected
-      ? formatDecantSizeLabel(variationSizeValue(selected))
-      : '';
     const text = encodeURIComponent(
-      `Hi ${siteConfig.name}, I'm interested in ${product.name}${size ? ` (${size})` : ''} × ${quantity}.`,
+      `Hi ${siteConfig.name}, I'm interested in ${product.name}${sizeLabel ? ` (${sizeLabel})` : ''} × ${quantity}.`,
     );
     if (!digits || digits.includes('X')) {
       return `https://wa.me/?text=${text}`;
@@ -53,14 +56,16 @@ export function ProductPurchase({ product }: ProductPurchaseProps) {
   })();
 
   const lineItem = () => {
-    const variationId = isVariable
-      ? (selected?.databaseId ?? 0)
-      : 0;
+    const variationId = isVariable ? (selected?.databaseId ?? 0) : 0;
     return {
       productId: product.databaseId,
       variationId,
       quantity,
       price: parsePriceAmount(displayPrice),
+      name: product.name,
+      slug: product.slug,
+      imageUrl,
+      sizeLabel,
     };
   };
 
@@ -73,7 +78,7 @@ export function ProductPurchase({ product }: ProductPurchaseProps) {
   const onAddToCart = () => {
     if (isVariable && !selected) return;
     if (outOfStock) return;
-    appendCartItemLocal(lineItem());
+    addItem(lineItem());
     setAdded(true);
     window.setTimeout(() => setAdded(false), 1800);
   };
@@ -179,6 +184,15 @@ export function ProductPurchase({ product }: ProductPurchaseProps) {
           WhatsApp
         </a>
       </div>
+
+      {added ? (
+        <p className='text-sm text-navy'>
+          Added to cart.{' '}
+          <Link href='/cart' className='font-medium underline'>
+            View cart
+          </Link>
+        </p>
+      ) : null}
 
       {outOfStock ? (
         <p className='text-sm font-medium text-red-700'>Out of stock</p>

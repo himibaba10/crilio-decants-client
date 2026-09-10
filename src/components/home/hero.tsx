@@ -1,19 +1,22 @@
-import Image from "next/image"
+import Image from 'next/image';
 
-import { siteConfig } from "@/lib/site"
+import { siteConfig } from '@/lib/site';
 
 /** Full-viewport hero — background image only (no overlays). */
 export function Hero() {
   return (
-    <section className="relative h-screen w-full overflow-hidden bg-navy" aria-label="Hero">
+    <section
+      className='relative h-screen w-full overflow-hidden bg-navy mt-20'
+      aria-label='Hero'
+    >
       <Image
         src={siteConfig.images.hero}
-        alt=""
+        alt=''
         fill
         priority
-        sizes="100vw"
-        className="object-cover object-center"
+        sizes='100vw'
+        className='object-cover object-center'
       />
     </section>
-  )
+  );
 }

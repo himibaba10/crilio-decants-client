@@ -3,6 +3,7 @@ import { Poppins } from "next/font/google"
 
 import { SiteFooter } from "@/components/layout/site-footer"
 import { SiteHeader } from "@/components/layout/site-header"
+import { CartProvider } from "@/context/cart-provider"
 import { siteConfig } from "@/lib/site"
 
 import "./globals.css"
@@ -32,9 +33,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${poppins.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col font-sans text-foreground">
-        <SiteHeader />
-        {children}
-        <SiteFooter />
+        <CartProvider>
+          <SiteHeader />
+          {children}
+          <SiteFooter />
+        </CartProvider>
       </body>
     </html>
   )

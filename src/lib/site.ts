@@ -23,7 +23,7 @@ export const siteConfig = {
   ],
   images: {
     logo: '/images/brand/crilio-logo.png',
-    hero: '/images/home/hero.jpg',
+    hero: '/images/home/hero.webp',
     whyChoose: '/images/home/why-choose.jpg',
     store: '/images/home/store.jpg',
   },

@@ -4,11 +4,10 @@ import { HeaderNav } from '@/components/layout/header-nav';
 import { cn } from '@/lib/utils';
 
 type SiteHeaderProps = {
-  cartCount?: number;
   className?: string;
 };
 
-export function SiteHeader({ cartCount = 0, className }: SiteHeaderProps) {
+export function SiteHeader({ className }: SiteHeaderProps) {
   return (
     <header
       className={cn(
@@ -19,7 +18,7 @@ export function SiteHeader({ cartCount = 0, className }: SiteHeaderProps) {
       <div className='mx-auto grid h-20 max-w-7xl grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 sm:h-22 sm:px-6 lg:px-8'>
         <HeaderNav />
         <BrandLogo size='header' />
-        <HeaderActions cartCount={cartCount} />
+        <HeaderActions />
       </div>
     </header>
   );
