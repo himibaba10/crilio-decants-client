@@ -42,7 +42,7 @@ Allow: WooCommerce, WPGraphQL, WPGraphQL WooCommerce (WooGraphQL).
 - `src/lib/cart` — cart types + checkout handoff URL builder
 - `src/context` — CartProvider (future)
 - `src/components/{ui,layout,catalog,cart,product}`
-- `src/app/api` — revalidate route handler (future)
+- `src/app/api/revalidate` — WooCommerce webhook cache bust (blueprint §7)
 - `src/types` — WooCommerce/GraphQL types
 - `docs/` — technical blueprint (source of truth)
 

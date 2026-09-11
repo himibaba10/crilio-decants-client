@@ -31,5 +31,5 @@ bun dev
 2. PDP variation picker (3ml / 5ml / 10ml)
 3. Cart Context + Sheet drawer + localStorage
 4. Checkout handoff redirect
-5. `/api/revalidate` + WooCommerce webhooks
-6. WordPress `functions.php` snippets (§5 cart handoff, §6 traffic routing, §6a CORS) — delivered separately for Spaceship
+5. ~~`/api/revalidate` + WooCommerce webhooks~~ — see `docs/wordpress/revalidate-webhooks.md`
+6. WordPress mu-plugins on Spaceship (§5–§6a) — copy from `docs/wordpress/`
