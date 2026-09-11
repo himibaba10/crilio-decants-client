@@ -18,33 +18,21 @@ Set `REVALIDATE_SECRET` in Vercel (and `.env.local` for local tests). Use a long
 
 **WooCommerce → Settings → Advanced → Webhooks → Add webhook**
 
-Create **two** (or more) webhooks:
-
-### 1. Product changes
+Create **four** webhooks (same URL + Secret, different Topic):
 
 | Field | Value |
 | --- | --- |
-| Name | Next.js revalidate — product |
-| Status | Active |
-| Topic | Product updated *(also add Product created / Product deleted if offered)* |
-| Delivery URL | `https://YOUR-VERCEL-DOMAIN/api/revalidate?secret=YOUR_SECRET` |
-| Secret | optional (auth is via the URL query) |
+| Name | `Next.js revalidate — product created` (etc.) |
+| Status | **Active** |
+| Topic | Product created / Product updated / Product deleted / Order created |
+| Delivery URL | `https://crilio-decants-client.vercel.app/api/revalidate` |
+| Secret | **exactly** your `REVALIDATE_SECRET` (replace Woo’s auto-generated value) |
 | API Version | WP REST API Integration v3 |
 
-Repeat for **Product created** and **Product deleted** if you want new/removed products to clear instantly (recommended).
+Woo always auto-fills Secret if you leave it blank — that’s normal. **Overwrite it** with the same string you set in Vercel / `.env.local`.
 
-### 2. Orders (stock)
+Do **not** put `?secret=` in the Delivery URL when using the Secret field (HMAC). Query-string auth still works for manual `curl` tests.
 
-| Field | Value |
-| --- | --- |
-| Name | Next.js revalidate — order |
-| Status | Active |
-| Topic | Order created |
-| Delivery URL | same URL as above |
-
-Optional: also **Order updated** if you restock / cancel often.
-
-When a product payload includes `slug`, Next clears `product:{slug}` plus the shared `catalog` / `shop` tags. Orders clear catalog/shop (all stock-sensitive lists).
 
 ## Manual test
 
@@ -66,6 +54,17 @@ Expect `{ "revalidated": true, "tags": ["catalog","shop",...], ... }`.
 
 ## Notes
 
-- Delivery URL must be publicly reachable from Spaceship (use the Vercel URL, not localhost).
+- Delivery URL must be publicly reachable from Spaceship
+  (`https://crilio-decants-client.vercel.app/...`, not localhost).
 - For local webhook testing, use a tunnel (ngrok / Cloudflare Tunnel) pointed at `localhost:3000`.
 - Time-based ISR (`revalidate = 60`) remains a safety net if a webhook fails.
+
+## Production storefront
+
+- Storefront: `https://crilio-decants-client.vercel.app`
+- Set Vercel env `REVALIDATE_SECRET` to the same value used in the webhook URL.
+- On WordPress (`wp-config.php`):
+
+```php
+define( 'CRILIO_STOREFRONT_URL', 'https://crilio-decants-client.vercel.app' );
+```

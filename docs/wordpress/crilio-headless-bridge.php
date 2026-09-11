@@ -7,7 +7,7 @@
  * Install: copy to wp-content/mu-plugins/crilio-headless-bridge.php
  *
  * Configure (wp-config.php or here):
- *   define( 'CRILIO_STOREFRONT_URL', 'https://yourperfume.com' );
+ *   define( 'CRILIO_STOREFRONT_URL', 'https://crilio-decants-client.vercel.app' );
  * Local default is http://localhost:3000
  */
 
@@ -97,6 +97,7 @@ function crilio_allowed_origins()
 			array_unique(
 				array(
 					untrailingslashit(CRILIO_STOREFRONT_URL),
+					'https://crilio-decants-client.vercel.app',
 					'http://localhost:3000',
 					'http://127.0.0.1:3000',
 				)

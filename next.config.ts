@@ -24,6 +24,11 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "crilio.reactiveferdous.com",
+        pathname: "/wp-content/**",
+      },
+      {
+        protocol: "https",
         hostname: "**.vercel.app",
         pathname: "/**",
       },

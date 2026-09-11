@@ -1,3 +1,4 @@
+import { createHmac, timingSafeEqual } from "crypto"
 import { revalidatePath, revalidateTag } from "next/cache"
 import { NextRequest, NextResponse } from "next/server"
 
@@ -5,14 +6,16 @@ import { NextRequest, NextResponse } from "next/server"
  * On-demand cache bust for WooCommerce → Next.js (blueprint §7).
  *
  * Auth (any one):
+ * - WooCommerce webhook HMAC: header `X-WC-Webhook-Signature`
+ *   (Delivery URL without query; Secret field = REVALIDATE_SECRET)
  * - `?secret=` matching REVALIDATE_SECRET
  * - Header `x-revalidate-secret: <secret>`
  * - Header `Authorization: Bearer <secret>`
  *
- * WooCommerce webhooks should POST to:
- *   https://<storefront>/api/revalidate?secret=<REVALIDATE_SECRET>
- *
- * Topics: Product created/updated/deleted, Order created/updated
+ * Recommended WooCommerce setup:
+ *   Delivery URL: https://crilio-decants-client.vercel.app/api/revalidate
+ *   Secret:       same value as REVALIDATE_SECRET on Vercel
+ *   Topics:       Product created/updated/deleted, Order created
  */
 
 function getConfiguredSecret(): string | undefined {
@@ -20,17 +23,37 @@ function getConfiguredSecret(): string | undefined {
   return secret || undefined
 }
 
-function isAuthorized(request: NextRequest, secret: string): boolean {
+function safeEqual(a: string, b: string): boolean {
+  const left = Buffer.from(a)
+  const right = Buffer.from(b)
+  if (left.length !== right.length) return false
+  return timingSafeEqual(left, right)
+}
+
+function isAuthorized(
+  request: NextRequest,
+  secret: string,
+  rawBody: string,
+): boolean {
   const query = request.nextUrl.searchParams.get("secret")
-  if (query && query === secret) return true
+  if (query && safeEqual(query, secret)) return true
 
   const headerSecret = request.headers.get("x-revalidate-secret")
-  if (headerSecret && headerSecret === secret) return true
+  if (headerSecret && safeEqual(headerSecret, secret)) return true
 
   const auth = request.headers.get("authorization")
   if (auth) {
     const match = /^Bearer\s+(.+)$/i.exec(auth.trim())
-    if (match?.[1] === secret) return true
+    if (match?.[1] && safeEqual(match[1], secret)) return true
+  }
+
+  // Native WooCommerce webhook signature (HMAC-SHA256, base64).
+  const signature = request.headers.get("x-wc-webhook-signature")
+  if (signature) {
+    const expected = createHmac("sha256", secret)
+      .update(rawBody, "utf8")
+      .digest("base64")
+    if (safeEqual(signature, expected)) return true
   }
 
   return false
@@ -64,7 +87,9 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  if (!isAuthorized(request, secret)) {
+  const rawBody = await request.text()
+
+  if (!isAuthorized(request, secret, rawBody)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
@@ -76,13 +101,12 @@ export async function POST(request: NextRequest) {
   }
 
   let body: Record<string, unknown> = {}
-  try {
-    const text = await request.text()
-    if (text.trim()) {
-      body = JSON.parse(text) as Record<string, unknown>
+  if (rawBody.trim()) {
+    try {
+      body = JSON.parse(rawBody) as Record<string, unknown>
+    } catch {
+      body = {}
     }
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 })
   }
 
   const tags = new Set<string>(["catalog", "shop"])
