@@ -5,17 +5,17 @@ import { NextRequest, NextResponse } from "next/server"
 /**
  * On-demand cache bust for WooCommerce → Next.js (blueprint §7).
  *
- * Auth (any one):
- * - WooCommerce webhook HMAC: header `X-WC-Webhook-Signature`
- *   (Delivery URL without query; Secret field = REVALIDATE_SECRET)
+ * Auth (any one) for real deliveries:
+ * - WooCommerce HMAC header `X-WC-Webhook-Signature` (Secret field = REVALIDATE_SECRET)
  * - `?secret=` matching REVALIDATE_SECRET
- * - Header `x-revalidate-secret: <secret>`
- * - Header `Authorization: Bearer <secret>`
+ * - Header `x-revalidate-secret` / `Authorization: Bearer`
  *
- * Recommended WooCommerce setup:
+ * WooCommerce save-time ping (`deliver_ping`) POSTs `webhook_id=123` with
+ * NO signature headers — that must return 200 or the admin UI shows an error.
+ *
+ * Recommended setup:
  *   Delivery URL: https://crilio-decants-client.vercel.app/api/revalidate
- *   Secret:       same value as REVALIDATE_SECRET on Vercel
- *   Topics:       Product created/updated/deleted, Order created
+ *   Secret:       same as REVALIDATE_SECRET
  */
 
 function getConfiguredSecret(): string | undefined {
@@ -47,7 +47,6 @@ function isAuthorized(
     if (match?.[1] && safeEqual(match[1], secret)) return true
   }
 
-  // Native WooCommerce webhook signature (HMAC-SHA256, base64).
   const signature = request.headers.get("x-wc-webhook-signature")
   if (signature) {
     const expected = createHmac("sha256", secret)
@@ -59,8 +58,13 @@ function isAuthorized(
   return false
 }
 
+function isWooCommerceSavePing(rawBody: string, topic: string): boolean {
+  if (topic === "action.woocommerce_webhook_ping") return true
+  // deliver_ping(): body is literally "webhook_id=123", no WC headers
+  return /^webhook_id=\d+$/.test(rawBody.trim())
+}
+
 function expireTag(tag: string) {
-  // Immediate expire — required for external webhooks (Next.js 16+)
   revalidateTag(tag, { expire: 0 })
 }
 
@@ -88,16 +92,15 @@ export async function POST(request: NextRequest) {
   }
 
   const rawBody = await request.text()
+  const topic = request.headers.get("x-wc-webhook-topic") ?? ""
+
+  // Must succeed without auth — WC's connection test sends no signature.
+  if (isWooCommerceSavePing(rawBody, topic)) {
+    return NextResponse.json({ ok: true, ping: true })
+  }
 
   if (!isAuthorized(request, secret, rawBody)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
-
-  const topic = request.headers.get("x-wc-webhook-topic") ?? ""
-
-  // WooCommerce sends this when you first save a webhook.
-  if (topic === "action.woocommerce_webhook_ping") {
-    return NextResponse.json({ ok: true, ping: true })
   }
 
   let body: Record<string, unknown> = {}
